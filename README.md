@@ -28,10 +28,88 @@ a package with one signed by a different key ([AOSP](https://cs.android.com/andr
 Whether this is fixable **depends on how the Verifier got onto your device**, and that differs
 between vendors and Android builds. Run the triage below to find out which case you are in.
 
-## Step 1 — run the triage
+## Step 0 - Connect your device with ADB
 
+**A. Download ADB**
+
+Download the Android SDK Platform Tools for your operating system:
+
+https://developer.android.com/tools/releases/platform-tools
+
+Extract the downloaded ZIP file.
+
+**B. Download the APK**
+
+Download the latest APK from this repository's **Releases** page and copy it into the extracted `platform-tools` folder.
+
+**C. Open a terminal in the `platform-tools` folder**
+
+Open Command Prompt, PowerShell, Terminal, or your preferred command-line tool and navigate to the `platform-tools` directory.
+
+**D. Enable Developer Options on your phone**
+
+Go to:
+
+`Settings > About phone > Software information`
+
+Tap **Build number** seven times, then enter your PIN when prompted.
+
+**E. Enable USB debugging**
+
+Go to:
+
+`Settings > System > Developer options`
+
+Enable **USB debugging**.
+
+Wireless debugging can also be used, but USB is simpler.
+
+**F. Connect your phone**
+
+Connect the phone to your computer using a USB cable that supports data transfer.
+
+On the phone, open the notification tray, tap the USB connection notification, and select **File Transfer**.
+
+**G. Check the ADB connection**
+
+In your terminal, run:
+
+```bash
+adb devices
+```
+
+On Windows, you may need to use:
+
+```powershell
+.\adb.exe devices
+```
+
+If prompted on your phone, approve the USB debugging connection.
+
+Your device should appear in the list with a device ID. If it does, ADB is connected and you can continue.
+
+## Step 1 — run the triage
+Now we are going to check if the "official" verifier is installed.
+Run the following command:
+
+Windows:
+```
+.\adb.exe pm list packages -u | findstr verifier
+```
+Linux/MacOS:
 ```
 adb shell pm list packages -u | grep verifier
+```
+If your terminal responds with an empty list - the verifier is not installed and we don't need to remove it.
+If your terminal lists a package like `package:com.google.android.verifier` then we can proceed with uninstalling it.
+
+Windows:
+```
+.\adb.exe uninstall com.google.android.verifier
+```
+
+Linux/MacOS
+```
 adb uninstall com.google.android.verifier
 ```
 
@@ -43,6 +121,11 @@ people get stuck with `Failure [not installed for 0]`.
 
 **`Success`** → the Verifier was an ordinary updatable app and is now really gone. Install the placeholder:
 
+Windows:
+```
+.\adb.exe install -r -d developer-verifier-v3000000000000.apk
+```
+Linux/MacOS:
 ```
 adb install -r -d developer-verifier-v3000000000000.apk
 ```
